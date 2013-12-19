@@ -15,7 +15,7 @@ module Berkshelf
           errors: Array.new,
           messages: Array.new
         }
-        @listc = Array.new
+        @cookbooks_names = Array.new
         @cookbooks = Hash.new
         super
       end
@@ -24,16 +24,12 @@ module Berkshelf
         cookbooks.each do |name, details|
           details[:name] = name
           output[:cookbooks] << name
-          listc << name
+          cookbooks_names << name
         end
 
-        notify "\u2705"+listc.join(",")
-
-        output[:errors] << "xxx"
-        output[:messages] << "yyy"
-
-        notify "\u2757"+output[:errors].join(",") if output[:errors]
-        notify "\u2757"+output[:messages].join(",") if output[:messages]
+        notify "\u2705" + cookbooks_names.join(",")
+        notify "\u2757" + output[:errors].join(",")   unless output[:errors].empty?
+        notify "\u2757" + output[:messages].join(",") unless output[:messages].empty?
       end
 
       # Add a Cookbook installation entry to delayed output
@@ -43,8 +39,6 @@ module Berkshelf
       # @param [~Location] location
       def install(cookbook, version, location)
         cookbooks[cookbook] ||= {}
-        # cookbooks[cookbook][:version] = version
-        # cookbooks[cookbook][:location] = location.to_s
       end
 
       # Add a Cookbook use entry to delayed output
@@ -54,12 +48,6 @@ module Berkshelf
       # @param [~Location] location
       def use(cookbook, version, location = nil)
         cookbooks[cookbook] ||= {}
-        # cookbooks[cookbook][:version] = version
-
-        # if location && location.is_a?(PathLocation)
-        #   cookbooks[cookbook][:metadata] = true if location.metadata?
-        #   cookbooks[cookbook][:location] = location.relative_path
-        # end
       end
 
       # Add a Cookbook upload entry to delayed output
@@ -69,8 +57,6 @@ module Berkshelf
       # @param [String] chef_api_url
       def upload(cookbook, version, chef_api_url)
         cookbooks[cookbook] ||= {}
-        # cookbooks[cookbook][:version] = version
-        # cookbooks[cookbook][:uploaded_to] = chef_api_url
       end
 
       # Add a Cookbook package entry to delayed output
@@ -79,7 +65,6 @@ module Berkshelf
       # @param [String] destination
       def package(cookbook, destination)
         cookbooks[cookbook] ||= {}
-        # cookbooks[cookbook][:destination] = destination
       end
 
       # Output Cookbook info entry to delayed output
@@ -93,7 +78,6 @@ module Berkshelf
       #
       # @param [String] message
       def msg(message)
-        output[:messages] << "\u2705"
         output[:messages] << message
       end
 
@@ -101,7 +85,6 @@ module Berkshelf
       #
       # @param [String] message
       def error(message)
-        output[:errors] << "\u2705"
         output[:errors] << message
       end
 
@@ -112,7 +95,7 @@ module Berkshelf
 
         attr_reader :output
         attr_reader :cookbooks
-        attr_reader :listc
+        attr_reader :cookbooks_names
     end
   end
 end
